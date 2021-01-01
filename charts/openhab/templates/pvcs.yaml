@@ -1,0 +1,65 @@
+{{- $createCfgPvc := and (empty .Values.storage.openhabConfig.persistentVolumeClaimName) (.Values.storage.openhabConfig.requestedSize) }}
+{{- if $createCfgPvc }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openhab.fullname" . }}-conf
+  labels:
+    {{- include "openhab.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.storage.openhabConfig }}
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .requestedSize }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- $createDataPvc := and (empty .Values.storage.openhabData.persistentVolumeClaimName) (.Values.storage.openhabData.requestedSize) }}
+{{- if $createDataPvc }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openhab.fullname" . }}-data
+  labels:
+    {{- include "openhab.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.storage.openhabData }}
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .requestedSize }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- $createAddonPvc := and (empty .Values.storage.openhabAddon.persistentVolumeClaimName) (.Values.storage.openhabAddon.requestedSize) }}
+{{- if $createAddonPvc }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openhab.fullname" . }}-addon
+  labels:
+    {{- include "openhab.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.storage.openhabAddon }}
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .requestedSize }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName }}
+  {{- end }}
+  {{- end }}
+{{- end }}

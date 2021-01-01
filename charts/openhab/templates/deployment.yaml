@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openhab.fullname" . }}
+  labels:
+    {{- include "openhab.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy: 
+    type: Recreate  
+  selector:
+    matchLabels:
+      {{- include "openhab.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "openhab.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openhab.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+            {{- range $service := .Values.extraServices }}              
+            - name: {{ $service.name }}
+              containerPort: {{ $service.containerPort}}
+              protocol: {{ $service.protocol }}
+            {{- end }}
+          env:
+            - name: OPENHAB_HTTP_PORT
+              value: {{ .Values.containerPort | quote }}
+            {{- if .Values.settings.extraJavaOpts }}
+            - name: EXTRA_JAVA_OPTS
+              value: {{ .Values.settings.extraJavaOpts | quote }}
+            {{- end }}
+            {{- if .Values.settings.cryptoPolicy }}
+            - name: CRYPTO_POLICY
+              value: {{ .Values.settings.cryptoPolicy | quote }}
+            {{- end }}
+            {{- if .Values.settings.language }}
+            - name: LC_ALL
+              value: {{ .Values.settings.language | quote }}
+            - name: LANG
+              value: {{ .Values.settings.language | quote }}
+            - name: LANGUAGE
+              value: {{ .Values.settings.language | quote }}
+            {{- end }}
+          {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost:{{ .Values.containerPort }}
+            {{- with .Values.livenessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            periodSeconds: {{ .periodSeconds }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost:{{ .Values.containerPort }}
+            {{- with .Values.readinessProbe }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            successThreshold: {{ .successThreshold }}
+            periodSeconds: {{ .periodSeconds }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.args }}
+          args:
+            {{- range .Values.args }}
+            - {{ . }}
+            {{- end }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /openhab/userdata
+              name: openhab-data-vol
+            - mountPath: /openhab/conf
+              name: openhab-config-vol
+            - mountPath: /openhab/addons
+              name: openhab-addon-vol
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: openhab-config-vol
+        {{- if .Values.storage.openhabConfig.persistentVolumeClaimName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.openhabConfig.persistentVolumeClaimName }}
+        {{- else }}
+        {{- if .Values.storage.openhabConfig.requestedSize }}
+          persistentVolumeClaim:
+            claimName: {{ include "openhab.fullname" . }}-conf
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- end }}
+        - name: openhab-data-vol
+        {{- if .Values.storage.openhabData.persistentVolumeClaimName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.openhabData.persistentVolumeClaimName }}
+        {{- else }}
+        {{- if .Values.storage.openhabData.requestedSize }}
+          persistentVolumeClaim:
+            claimName: {{ include "openhab.fullname" . }}-data
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- end }}
+        - name: openhab-addon-vol
+        {{- if .Values.storage.openhabAddon.persistentVolumeClaimName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.openhabAddon.persistentVolumeClaimName }}
+        {{- else }}
+        {{- if .Values.storage.openhabAddon.requestedSize }}
+          persistentVolumeClaim:
+            claimName: {{ include "openhab.fullname" . }}-addon
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- end }}
