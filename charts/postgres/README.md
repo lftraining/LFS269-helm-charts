@@ -7,8 +7,8 @@ A Helm chart for PostgreSQL on Kubernetes
 ## TL;DR
 
 ```bash
-$ helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
-$ helm install my-release groundhog2k/postgres
+$ helm repo add lfs269 https://lfs269.github.io/helm-charts/
+$ helm install my-release lfs269/postgres
 ```
 
 ## Introduction
@@ -76,6 +76,7 @@ $ helm uninstall my-release
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| service.name | string | `"postgres"` | Service name |
 | service.type | string | `"ClusterIP"` | Service type |
 | service.port | int | `5432` | PostreSQL service port |
 | service.nodePort | int | `nil` | The node port (only relevant for type LoadBalancer or NodePort) |

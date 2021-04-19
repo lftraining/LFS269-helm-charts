@@ -1,12 +1,13 @@
 apiVersion: v2
 name: postgres
-description: A Helm chart for PostgreSQL on Kubernetes
+description: A Helm chart for PostgreSQL on Kubernetes, forked from groundhog2k2. 
 
 type: application
 
 maintainers:
-  - name: groundhog2k
+  - name: Gourav Shah
+    email: gouravshah@schoolofdevops.com
 
-version: 0.2.9
+version: 0.2.10
 
 appVersion: "13.2"
