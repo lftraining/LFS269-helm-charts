@@ -29,7 +29,7 @@ It fully supports deployment of the multi-architecture docker image.
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm install my-release groundhog2k/postgres
+$ helm install my-release lfs269/postgres
 ```
 
 ## Uninstalling the Chart
