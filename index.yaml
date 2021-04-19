@@ -3517,6 +3517,19 @@ entries:
   postgres:
   - apiVersion: v2
     appVersion: "13.2"
+    created: "2021-04-19T03:40:55.997708024Z"
+    description: A Helm chart for PostgreSQL on Kubernetes, forked from groundhog2k2.
+    digest: afbec6e239bcb9d7ca94ee03661504bb358e90aed6fd08954eaceb9d3e27a4c7
+    maintainers:
+    - email: gouravshah@schoolofdevops.com
+      name: Gourav Shah
+    name: postgres
+    type: application
+    urls:
+    - https://github.com/lfs269/helm-charts/releases/download/postgres-0.2.11/postgres-0.2.11.tgz
+    version: 0.2.11
+  - apiVersion: v2
+    appVersion: "13.2"
     created: "2021-04-19T03:24:05.177731177Z"
     description: A Helm chart for PostgreSQL on Kubernetes, forked from groundhog2k2.
     digest: ae94bdf4324d1bf31373b0721b837f10e7c6ea6700166fc731712790477d3e33
