@@ -1,4 +1,4 @@
-# lfs269/helm-charts
+# lftraining/LFS269-helm-charts
 
 Helm charts repository hosted with GitHub Pages for **Linux Foundation GitOps Course LFS269**. 
 
